@@ -1,0 +1,569 @@
+
+/* --- Global Variables and Reset --- */
+:root {
+    --primary-blue: #007bff;
+    --secondary-blue: #3b82f6;
+    --dark-blue: #1e3a8a;
+    --text-color: #4a5568;
+    --heading-color: #2d3748;
+    --light-bg: #f7f9fc;
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+    --nav-height: 70px;
+    --gradient-start: #3b82f6;
+    --gradient-end: #a855f7; /* Purple for the bar */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--white);
+}
+
+/* --- Container Utility --- */
+.nav-container, .hero-container, .intro-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--light-bg);
+    padding: 0 20px;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--heading-color);
+}
+
+.logo-icon {
+    font-size: 1.5rem;
+    margin-right: 5px;
+    color: var(--primary-blue);
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    margin-left: 30px; 
+    margin-top: -7px;
+    font-weight: 600;
+    justify-content: flex-start;
+}
+
+.nav-links a {
+    color: var(--text-color);
+    font-size: 0.95rem;
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--primary-blue);
+}
+
+.nav-actions {
+    display: flex;
+    gap: 15px;
+    margin-left: auto;
+    align-items: center;
+}
+
+/* --- Button Styling --- */
+.btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.text-btn {
+    color: var(--text-color);
+    background: none;
+    border: none;
+}
+
+.text-btn:hover {
+    color: var(--primary-blue);
+}
+
+.primary-btn {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+.primary-btn:hover {
+    background-color: var(--dark-blue);
+}
+
+.secondary-btn {
+    background-color: var(--white);
+    color: var(--heading-color);
+    border-color: var(--border-color);
+}
+
+.secondary-btn:hover {
+    background-color: var(--light-bg);
+}
+
+/* --- Hero Section Styling --- */
+
+/* Ensures the container is positioned correctly */
+.hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    align-items: flex-start; /* Correct alignment for the large headline */
+    gap: 50px;
+}
+
+/* This targets the <h1> directly, ensuring a dominant style is applied */
+.hero-content h1,
+.hero-content .main-title { /* Added the class for robustness */
+    font-size: 3.8rem; /* Make it large enough to stand out */
+    font-weight: 800; /* Make it bold as in the image */
+    margin-bottom: 0; /* Remove default bottom margin */
+    color: var(--heading-color); /* Ensure a dark, high-contrast color */
+    line-height: 1.1;
+    /* You can add a text-shadow here if it's still hard to read, but usually not needed */
+}
+
+/* Ensure the large gradient bar is properly spaced */
+.subtitle-bar-large {
+    width: 400px; 
+    max-width: 100%;
+    height: 20px; 
+    /* Increased top margin to separate it from the H1 */
+    margin-top: 15px; 
+    /* Increased bottom margin to separate it from the text */
+    margin-bottom: 25px; 
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+    border-radius: 5px;
+}
+
+.hero-content h2 {
+    font-size: 1.5rem;
+    color: var(--heading-color);
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+.subtitle-bar {
+    width: 250px;
+    height: 10px;
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+.hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Hero Image Styling */
+.hero-image {
+    flex: 1.2;
+    max-width: 100%;
+    margin-top: 40px;
+}
+
+.hero-image img {
+    width: 120%;
+    height: auto;
+    border-radius: 20px;
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Features Introduction Section --- */
+.intro-section {
+    text-align: center;
+    padding: 60px 0 20px;
+}
+
+.intro-section h3 {
+    font-size: 1.8rem;
+    color: var(--heading-color);
+    margin-bottom: 5px;
+}
+
+.intro-section p {
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+    .hero-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    .hero-content, .hero-image {
+        max-width: 100%;
+    }
+    .hero-content {
+        order: 2; /* Content below image on mobile */
+    }
+    .hero-image {
+        order: 1;
+        margin-bottom: 30px;
+    }
+    .subtitle-bar {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .cta-buttons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 20px;
+    }
+    .nav-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 10px;
+        gap: 15px;
+        margin-left: 0;
+    }
+    .nav-actions {
+        order: 2;
+        margin-left: 0;
+    }
+    .logo {
+        order: 1;
+        margin-right: auto;
+    }
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+h1, h2 {
+    color: var(--heading-color);
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-blue);
+}
+
+ul {
+    list-style: none;
+}
+
+/* --- Button Style --- */
+.btn {
+    display: inline-block;
+    padding: 10px 25px;
+    border-radius: 5px;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+}
+
+.primary-btn {
+    background-color: var(--white);
+    color: var(--primary-blue);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+}
+
+.primary-btn:hover {
+    background-color: var(--light-bg);
+}
+
+
+/* --- Hero Section (Top Part) --- */
+.hero-section {
+    background-color: #d2b1fc;
+    padding: 80px 20px;
+    text-align: center;
+    color: var(--white);
+    border-radius: 0 0 15px 15px; /* Slight rounding to mimic the image */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    border-radius: 10px;
+}
+
+
+
+.hero-content p {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+
+/* --- Features Section (Middle Part) --- */
+.features-section {
+    padding: 60px 20px;
+    margin-top: -50px; /* Bring it closer to the hero section */
+}
+
+.features-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.feature-card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    margin: 10px 0;
+}
+
+.icon-placeholder {
+    font-size: 24px;
+    color: var(--primary-blue);
+    display: inline-block;
+    background-color: var(--light-bg);
+    padding: 10px;
+    border-radius: 5px;
+}
+
+
+/* --- Testimonials Section --- */
+.testimonials-section {
+    padding: 40px 20px 80px;
+    text-align: center;
+    background-color: var(--light-bg);
+}
+
+.testimonials-section h2 {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.testimonials-section .subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+}
+
+.testimonials-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.testimonial-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 25px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+.testimonial-card .profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.testimonial-card .avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-blue);
+    border-radius: 50%;
+    margin-right: 15px;
+    /* In a real site, this would be an <img> tag */
+}
+
+.testimonial-card .name {
+    font-weight: 600;
+    color: var(--heading-color);
+}
+
+.testimonial-card .title {
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.testimonial-card .quote {
+    font-style: italic;
+    color: var(--text-color);
+}
+
+
+/* --- Footer Section --- */
+footer {
+    padding-top: 50px;
+    background-color: var(--white);
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 30px;
+}
+
+.footer-col h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--heading-color);
+    margin-bottom: 10px;
+}
+
+.logo-icon {
+    font-size: 20px;
+    margin-right: 5px;
+    color: var(--primary-blue);
+}
+
+.brand-info p {
+    font-size: 0.9rem;
+}
+
+.footer-col li {
+    margin-bottom: 10px;
+}
+
+.footer-col a {
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.footer-col a:hover {
+    color: var(--primary-blue);
+}
+
+.social-links a {
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+.social-links a:hover {
+    background-color: var(--light-bg);
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    padding: 15px 20px;
+    font-size: 0.85rem;
+    color: var(--text-color);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .testimonials-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+    }
+    .brand-info {
+        grid-column: span 2;
+    }
+    .connect-links {
+        grid-column: span 2;
+    }
+
+    
+}

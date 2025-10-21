@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyNest - Collaborative Learning</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">StudyNest</span>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="explore.html">Explore</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            </ul>
+
+            <div class="logout" id="logout"><a href="index.html">Log Out</a></div>
+        </div>
+
+        </div>
+    </nav>
+    <main>
+        <div class="container">
+            <!-- NEW: Welcome Header Section (Matches image style) -->
+            <div class="welcome-header">
+                <div>
+                    <h1>Welcome back ! <span id="welcome-name">
+                            <div class="name" id="name"></div>
+                        </span></h1>
+                    <p class="subtitle">Here's what's happening with your study groups</p>
+                </div>
+
+                <!-- Create Group Button linked to the new page, styled with gradient -->
+                <a href="create-group.html" class="btn-create-group-big">
+                    <span>+</span> Create New Group
+                </a>
+            </div>
+
+            <!-- My Study Groups Section -->
+            <section class="container my-groups-section">
+                <h2 class="section-title">
+                    <span class="title-icon">&#x1F465;</span>
+                    My Study Groups
+                </h2>
+
+                <!-- This container will be populated by JavaScript -->
+                <div id="my-groups-list" class="groups-list-container">
+                    <!-- Initial loading message -->
+                    <p class="loading-message">Fetching your study groups...</p>
+                </div>
+            </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col brand-info">
+                <div class="logo">
+                    <span class="logo-icon">🎓</span>
+                    <span class="logo-text">StudyNest</span>
+                </div>
+                <p>Your digital home for collaborative learning.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Explore</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Dashboard</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col connect-links">
+                <h4>Connect</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Email">✉</a>
+                    <a href="#" aria-label="Twitter">🕊</a>
+                    <a href="#" aria-label="YouTube">▶</a>
+                    <a href="#" aria-label="Pinterest">📌</a>
+                    <a href="#" aria-label="LinkedIn">🔗</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 StudyNest. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- --- JAVASCRIPT FOR DYNAMIC DATA FETCHING --- -->
+    <script>
+        // --- Configuration ---
+        const USER_GROUPS_API_ENDPOINT = '/api/user/groups';
+
+        const groupsListContainer = document.getElementById('my-groups-list');
+
+        // --- Helper Functions ---
+
+        /**
+         * Maps group attributes to an appropriate CSS class (icon color).
+         * @param {string} groupName - The name of the group.
+         * @returns {string} The CSS class for coloring the icon.
+         */
+        function getGroupColorClass(groupName) {
+            const lowerCaseName = groupName.toLowerCase();
+            if (lowerCaseName.includes('marketing') || lowerCaseName.includes('business')) {
+                return 'green';
+            }
+            if (lowerCaseName.includes('calculus') || lowerCaseName.includes('math')) {
+                return 'teal';
+            }
+            return 'blue'; // Default color
+        }
+
+        /**
+         * Creates the HTML string for a single group list item.
+         * @param {Object} group - The group data object from the API.
+         * @returns {string} The HTML string for the group item.
+         */
+        function createGroupItemHTML(group) {
+            const colorClass = getGroupColorClass(group.name);
+            const memberText = group.memberCount === 1 ? 'member' : 'members';
+
+            return `
+                <div class="group-item">
+                    <div class="item-icon ${colorClass}">&#x1F465;</div>
+                    <div class="item-details">
+                        <h4>${group.name}</h4>
+                        <p>${group.memberCount} ${memberText}</p>
+                    </div>
+                    <a href="/group/${group.slug}" class="btn-open">Open</a>
+                </div>
+            `;
+        }
+
+        // --- Core Fetching Functions ---
+
+        /**
+         * Fetches the user's study groups from the server and renders them.
+         */
+        async function fetchAndRenderMyGroups() {
+            // 1. Retrieve the Cognito Token (assumed to be stored after login)
+            const cognitoToken = localStorage.getItem('idToken') || localStorage.getItem('accessToken');
+
+            if (!cognitoToken) {
+                groupsListContainer.innerHTML = '<p class="error-message">You are not logged in. Please log in to view your groups.</p>';
+                return;
+            }
+
+            // Clear current content and show loading message (if not already done)
+            groupsListContainer.innerHTML = '<p class="loading-message">Fetching your groups...</p>';
+
+            try {
+                // 2. Fetch data, including the Authorization header with the JWT
+                const response = await fetch(USER_GROUPS_API_ENDPOINT, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${cognitoToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error("Session expired. Please log in again.");
+                }
+                if (!response.ok) {
+                    throw new Error(`Server error! Status: ${response.status}`);
+                }
+
+                const groups = await response.json();
+
+                if (groups.length === 0) {
+                    groupsListContainer.innerHTML = '<p class="loading-message">You have not joined any study groups yet. <a href="explore.html" style="color: #4a90e2; font-weight: 600;">Explore groups</a>.</p>';
+                    return;
+                }
+
+                // 3. Generate and insert the HTML
+                const allItemsHTML = groups.map(createGroupItemHTML).join('');
+                groupsListContainer.innerHTML = allItemsHTML;
+
+            } catch (error) {
+                console.error("Failed to fetch user groups:", error);
+                groupsListContainer.innerHTML = `<p class="error-message">Error loading groups: ${error.message}</p>`;
+            }
+        }
+
+
+
+    </script>
+   
+
+    <style>
+        .logout {
+            display: flex;
+            gap: 15px;
+            font-weight: 500;
+            margin-left: auto;
+            align-items: center;
+        }
+
+        .name {
+            font-weight: 700;
+            font-size: medium;
+        }
+
+        .btn-create-group-big {
+            text-decoration: none;
+            padding: 12px 25px;
+            /* Gradient to match the image */
+            background: linear-gradient(90deg, #4a90e2 0%, #3b7ad2 100%);
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: opacity 0.3s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+            white-space: nowrap;
+            /* Prevent button text wrapping */
+            margin-top: 20px;
+            /* Added margin to push the button down */
+        }
+
+        .btn-create-group:hover {
+            background-color: #d1f9a9;
+            transform: translateY(-2px);
+        }
+
+        /* --- NEW: Welcome Header Section Styles --- */
+        .welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding: 10px 0;
+        }
+
+        .welcome-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .welcome-header h1 span {
+            color: #4a90e2;
+            /* Highlight the user name */
+        }
+
+        .welcome-header .subtitle {
+            font-size: 16px;
+            color: #777;
+            margin-top: 5px;
+        }
+    </style>
+
+</body>
+
+</html>

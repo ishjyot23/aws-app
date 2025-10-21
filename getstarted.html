@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyNest Login</title>
+    <style>
+        /* Basic Reset and Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            /* Light blue-gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Container for the Login Card */
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header (Back to Home) */
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #333;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Logo and Main Heading */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 36px;
+            color: #4a90e2;
+            /* Blue color for the icon */
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 22px;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            /* Added padding-left for icon */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #4a90e2;
+            outline: none;
+        }
+
+        /* Sign In Button */
+        .btn-signin {
+            width: 100%;
+            padding: 14px;
+            background-color: #4a90e2;
+            /* Primary blue color */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-signin:hover {
+            background-color: #3a7bd5;
+            /* Darker blue on hover */
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+        }
+
+        /* "Don't have an account" link */
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .signup-link a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="header">
+            <a href="index.html" class="back-link">
+                &larr; Back to Home
+            </a>
+        </div>
+
+        <div class="logo-section">
+            <div class="logo-icon">🎓</div>
+            <div class="logo-text">StudyNest</div>
+        </div>
+
+        <h2>Welcome</h2>
+        <p class="subtitle">Create your account to continue learning</p>
+
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <div class="input-wrapper">
+                    <span class="icon">📧</span>
+                    <input type="email" id="email" name="email" placeholder="your.email@university.edu" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <span class="icon">🔒</span>
+                    <input type="password" id="password" name="password" placeholder="Enter a password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-signin">Sign up</button>
+        </form>
+
+        <div class="signup-link">
+            Already have an account? <a href="signin.html">Sign in</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById("signupForm").addEventListener("submit", async (e) => {
+            e.preventDefault(); // prevent page reload
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            try {
+                const res = await fetch("http://localhost:3000/signup", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(data.message);
+                    // optionally redirect after success
+                    window.location.href = "signin.html";
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                alert("Network error: " + error.message);
+            }
+        });
+    </script>
+
+</body>
+
+</html>

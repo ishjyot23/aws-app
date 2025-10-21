@@ -3,10 +3,14 @@ import bodyParser from "body-parser";
 import AWS from "aws-sdk";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import cors from "cors";
+
+
 
 dotenv.config();
 const app = express();
 app.use(bodyParser.json());
+app.use(cors());
 
 AWS.config.update({ region: process.env.AWS_REGION });
 
@@ -14,6 +18,8 @@ AWS.config.update({ region: process.env.AWS_REGION });
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 const s3 = new AWS.S3();
 const cognito = new AWS.CognitoIdentityServiceProvider();
+
+
 
 // ========== 1️⃣ SIGNUP / LOGIN WITH COGNITO ==========
 app.post("/signup", async (req, res) => {
@@ -31,23 +37,50 @@ app.post("/signup", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+app.get("/confirm", async (req, res) => {
+  const { username, code } = req.query;
+  try {
+    await cognito.adminConfirmSignUp({
+      UserPoolId: process.env.USER_POOL_ID,
+      Username: username,
+    }).promise();
+    res.redirect("/confirm.html");
+  } catch (err) {
+    res.status(400).send("Error confirming user: " + err.message);
+  }
+});
 
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
+
+  // Prefer username if provided; fallback to email
+  const loginId = username || email;
+
+  if (!loginId || !password) {
+    return res.status(400).json({ error: "Username/email and password are required" });
+  }
+
   try {
     const data = await cognito
       .initiateAuth({
         AuthFlow: "USER_PASSWORD_AUTH",
-        ClientId: process.env.CLIENT_ID,
-        AuthParameters: { USERNAME: email, PASSWORD: password },
+        ClientId: process.env.CLIENT_ID, // from your App client (not pool)
+        AuthParameters: {
+          USERNAME: loginId,
+          PASSWORD: password,
+        },
       })
       .promise();
 
-    res.json({ token: data.AuthenticationResult.IdToken });
+    res.json({
+      message: "Login successful",
+      token: data.AuthenticationResult.IdToken,
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
+
 
 // Middleware to verify JWT
 function verifyJWT(req, res, next) {
@@ -157,5 +190,72 @@ app.post("/triggerLambda", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Define the API endpoint that the client-side JavaScript will call
+app.get('/api/groups', (req, res) => {
+  // Send the JSON array of groups
+  res.json(studyGroups);
+});
+
+// API endpoint to get the logged-in user's name
+app.get("/api/user/name", (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Missing or invalid token" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    // Verify and decode the JWT (no need for your own secret — use Cognito’s public key normally)
+    // For local testing only — decoding without validation:
+    const decoded = jwt.decode(token);
+
+    const name =
+      decoded.name ||
+      `${decoded.given_name || ""} ${decoded.family_name || ""}`.trim() ||
+      decoded.email ||
+      "User";
+
+    res.json({ displayName: name });
+  } catch (err) {
+    res.status(400).json({ error: "Invalid token" });
+  }
+});
+
+// Middleware to authenticate JWT token from Cognito
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Expecting "Bearer <token>"
+
+  if (!token) {
+    return res.status(401).json({ error: "Access denied. No token provided." });
+  }
+
+  try {
+    // verify token (replace 'your-secret' if you’re using Cognito's JWKS verify later)
+    const decoded = jwt.decode(token, { complete: true });
+    if (!decoded) throw new Error("Invalid token");
+
+    req.user = decoded.payload; // attach user info to request
+    next();
+  } catch (err) {
+    res.status(403).json({ error: "Invalid or expired token." });
+  }
+}
+
+// This is the new API route to be added to your server.js
+app.get('/api/user/groups', authenticateToken, (req, res) => {
+  // 1. req.user is available here (containing ID, email, etc., validated by Cognito)
+  const userId = req.user.id;
+
+  // 2. CONCEPTUAL LOGIC: Fetch groups from a database (Firestore/SQL/etc.) 
+  //    where the current userId is listed as a member.
+
+  // 3. Send the filtered list back to the client
+  res.json(userSpecificGroups);
+});
+
 
 app.listen(3000, () => console.log("✅ Server running on http://localhost:3000"));

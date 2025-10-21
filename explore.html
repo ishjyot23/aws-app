@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyNest - Explore Groups</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <span class="logo-icon">🎓</span>
+                <span class="logo-text">StudyNest</span>
+            </div>
+
+            <ul class="nav-links">
+                <li><a href="landing.html">Home</a></li>
+                <li><a href="explore.html" class="active">Explore</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+
+            
+            
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero-section">
+            <h1>Explore Study Groups by Domain</h1>
+            <p>Find your perfect study community and start learning together</p>
+        </section>
+
+        <section class="container">
+            <div class="groups-grid" id="groups-container">
+            </div>
+        </section>
+
+        <section class="container">
+            <div class="create-group-banner">
+                <h2>Can't Find Your Subject?</h2>
+                <p>Create your own study group and invite others to join your learning journey.</p>
+                <a href="/create-group.html" class="btn-create-group">Create New Group</a>
+            </div>
+        </section>
+
+    </main>
+
+
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-col brand-info">
+                <div class="logo">
+                    <span class="logo-icon">🎓</span>
+                    <span class="logo-text">StudyNest</span>
+                </div>
+                <p>Your digital home for collaborative learning.</p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Explore</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Dashboard</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col connect-links">
+                <h4>Connect</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Email">✉</a>
+                    <a href="#" aria-label="Twitter">🕊</a>
+                    <a href="#" aria-label="YouTube">▶</a>
+                    <a href="#" aria-label="Pinterest">📌</a>
+                    <a href="#" aria-label="LinkedIn">🔗</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 StudyNest. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <style>
+        /* General Body and Container Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding-top: 20px;
+            /* Adjust based on your navbar height */
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        /* --- 1. Hero Section (Search Bar) --- */
+        .hero-section {
+            text-align: center;
+            padding: 40px 20px 60px;
+        }
+
+        .hero-section h1 {
+            font-size: 44px;
+            font-weight: 800;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .hero-section p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 30px;
+            padding: 10px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-input-wrapper span {
+            color: #aaa;
+            margin-right: 10px;
+        }
+
+        .search-input-wrapper input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 5px 0;
+        }
+
+        .search-button {
+            padding: 12px 30px;
+            background-color: #4a90e2;
+            /* Blue */
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+            background-color: #3a7bd5;
+        }
+
+        /* --- 2. Group Cards Section --- */
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 30px 0;
+        }
+
+        .group-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .group-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-icon {
+            font-size: 30px;
+            color: #4a90e2;
+            background-color: #e0f0ff;
+            /* Very light blue background for icon */
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon.purple {
+            color: #9a4ae2;
+            background-color: #f0e0ff;
+        }
+
+        .group-card h3 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .group-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            flex-grow: 1;
+            /* Ensures equal height for different text lengths */
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            /* Pushes action buttons to the bottom */
+        }
+
+        .btn-join,
+        .btn-view {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .btn-join {
+            background-color: #4a90e2;
+            color: white;
+            border: 1px solid #4a90e2;
+        }
+
+        .btn-join:hover {
+            background-color: #3a7bd5;
+        }
+
+        .btn-view {
+            background-color: white;
+            color: #4a90e2;
+            border: 1px solid #4a90e2;
+        }
+
+        .btn-view:hover {
+            background-color: #f0f8ff;
+        }
+
+        /* --- 3. Create Group Banner --- */
+        .create-group-banner {
+            text-align: center;
+            padding: 60px 20px;
+            margin: 50px 0;
+            /* Gradient background similar to the image */
+            background: linear-gradient(135deg, #6a71e2, #b56ae2);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .create-group-banner h2 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .create-group-banner p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 25px;
+        }
+
+        .btn-create-group {
+            padding: 12px 35px;
+            background-color: white;
+            color: #6a71e2;
+            /* Matching the darker blue from the gradient */
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn-create-group:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        /* --- Media Queries for Responsiveness --- */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 36px;
+            }
+
+            .search-input-wrapper {
+                max-width: 100%;
+                border-radius: 8px;
+                padding: 10px 15px;
+            }
+
+            .search-button {
+                display: none;
+                /* Hide button on small screens, relying on form submit */
+            }
+
+            .search-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-input-wrapper input {
+                padding: 5px 0;
+            }
+
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .create-group-banner h2 {
+                font-size: 26px;
+            }
+
+            .create-group-banner p {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <script>
+        // Define the base URL for your API endpoint
+        // Assuming your server.js exposes an endpoint like /api/groups
+        const API_ENDPOINT = '/api/groups';
+
+        const groupsContainer = document.getElementById('groups-container');
+
+        /**
+         * Creates the HTML string for a single group card.
+         * @param {Object} group - The group data object from the API.
+         * @returns {string} The HTML string for the group card.
+         */
+        function createGroupCardHTML(group) {
+            // Determine the icon and the color class (e.g., 'purple' for Engineering)
+            const iconClass = group.color === 'purple' ? 'card-icon purple' : 'card-icon';
+
+            return `
+            <div class="group-card">
+                <div class="${iconClass}">${group.icon}</div>
+                <h3>${group.name}</h3>
+                <p>${group.description}</p>
+                <div class="card-actions">
+                    <a href="/join/${group.slug}" class="btn-join">Join Group</a>
+                    <a href="/details/${group.slug}" class="btn-view">View Details</a>
+                </div>
+            </div>
+        `;
+        }
+
+        /**
+         * Fetches group data from the server and renders the cards.
+         */
+        async function fetchAndRenderGroups() {
+            try {
+                // 1. Fetch data from the server.js API endpoint
+                const response = await fetch(API_ENDPOINT);
+
+                // Check if the response was successful (status 200-299)
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const groups = await response.json(); // 2. Parse the JSON response
+
+                // 3. Generate HTML for all groups
+                const allCardsHTML = groups.map(createGroupCardHTML).join('');
+
+                // 4. Insert the generated HTML into the groups-grid container
+                groupsContainer.innerHTML = allCardsHTML;
+
+            } catch (error) {
+                console.error("Failed to fetch and render groups:", error);
+                // Optional: Display an error message to the user
+                groupsContainer.innerHTML = '<p style="text-align: center; color: red;">Could not load study groups. Please try again later.</p>';
+            }
+        }
+
+        // Run the function when the page loads
+        fetchAndRenderGroups();
+    </script>
+</body>
+
+</html>
