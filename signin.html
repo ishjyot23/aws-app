@@ -204,6 +204,16 @@
             Don't have an account? <a href="getstarted.html">Sign up</a>
         </div>
     </div>
+    <div id="status-message" style="
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none; /* Hide by default */
+        "></div>
+
+        
     <script>
         document.querySelector("form").addEventListener("submit", async (e) => {
             e.preventDefault(); // Prevent page reload
@@ -227,6 +237,8 @@
                     alert("Login successful!");
                     // You can save the token in localStorage or sessionStorage
                     localStorage.setItem("idToken", data.token);
+                    localStorage.setItem("userEmail", email);
+
 
                     // Redirect to landing page
                     window.location.href = "landing.html";

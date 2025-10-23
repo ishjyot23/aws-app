@@ -22,8 +22,8 @@
                 <li><a href="dashboard.html">Dashboard</a></li>
             </ul>
 
-            
-            
+
+
         </div>
     </nav>
 
@@ -42,12 +42,11 @@
             <div class="create-group-banner">
                 <h2>Can't Find Your Subject?</h2>
                 <p>Create your own study group and invite others to join your learning journey.</p>
-                <a href="/create-group.html" class="btn-create-group">Create New Group</a>
+                <a href="create-group.html" class="btn-create-group">Create New Group</a>
             </div>
         </section>
 
     </main>
-
 
 
     <footer>
@@ -362,7 +361,7 @@
     <script>
         // Define the base URL for your API endpoint
         // Assuming your server.js exposes an endpoint like /api/groups
-        const API_ENDPOINT = '/api/groups';
+        const API_ENDPOINT = 'http://localhost:3000/groups';
 
         const groupsContainer = document.getElementById('groups-container');
 
@@ -372,21 +371,62 @@
          * @returns {string} The HTML string for the group card.
          */
         function createGroupCardHTML(group) {
-            // Determine the icon and the color class (e.g., 'purple' for Engineering)
-            const iconClass = group.color === 'purple' ? 'card-icon purple' : 'card-icon';
-
             return `
-            <div class="group-card">
-                <div class="${iconClass}">${group.icon}</div>
-                <h3>${group.name}</h3>
-                <p>${group.description}</p>
-                <div class="card-actions">
-                    <a href="/join/${group.slug}" class="btn-join">Join Group</a>
-                    <a href="/details/${group.slug}" class="btn-view">View Details</a>
-                </div>
+        <div class="group-card">
+            <h3>${group.GroupName}</h3>
+            <p>Subject: ${group.Subject || 0}</p>
+            <p>Description: ${group.Description || 0}</p>
+            <p>Members: ${group.Members || 0}</p>
+            
+            <div class="card-actions">
+                <button class="btn-join" onclick="sendJoinRequest('${group.GroupId}', this)">Join Group</button>
             </div>
-        `;
+        </div>
+    `;
         }
+        // Get email from token
+        function getCurrentUserEmail() {
+            const token = localStorage.getItem('idToken');
+            if (!token) return null;
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+                return payload.email || payload.username;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function sendJoinRequest(groupId, btn) {
+            const userEmail = getCurrentUserEmail();
+            if (!userEmail) {
+                alert('You must be logged in to join a group.');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Join Request Sent';
+
+            try {
+                const res = await fetch('http://localhost:3000/api/join', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ groupId, userEmail })
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                console.log(data.message);
+            } catch (err) {
+                console.error(err);
+                btn.disabled = false;
+                btn.textContent = 'Join Group';
+                alert('Failed to send join request. Try again.');
+            }
+        }
+
+
 
         /**
          * Fetches group data from the server and renders the cards.

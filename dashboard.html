@@ -32,9 +32,7 @@
             <!-- NEW: Welcome Header Section (Matches image style) -->
             <div class="welcome-header">
                 <div>
-                    <h1>Welcome back ! <span id="welcome-name">
-                            <div class="name" id="name"></div>
-                        </span></h1>
+                    <h1>Welcome back ! </h1>
                     <p class="subtitle">Here's what's happening with your study groups</p>
                 </div>
 
@@ -106,107 +104,124 @@
         </div>
     </footer>
 
-    <!-- --- JAVASCRIPT FOR DYNAMIC DATA FETCHING --- -->
+
+    <!-- ================== JAVASCRIPT ================== -->
     <script>
-        // --- Configuration ---
-        const USER_GROUPS_API_ENDPOINT = '/api/user/groups';
+        const USER_GROUPS_API_ENDPOINT = "http://localhost:3000/api/user/groups";
+        const groupsListContainer = document.getElementById("my-groups-list");
 
-        const groupsListContainer = document.getElementById('my-groups-list');
+        // ✅ Get user email from localStorage (set during login)
+        function getCurrentUserEmail() {
+            return localStorage.getItem("userEmail");
+        }
 
-        // --- Helper Functions ---
-
-        /**
-         * Maps group attributes to an appropriate CSS class (icon color).
-         * @param {string} groupName - The name of the group.
-         * @returns {string} The CSS class for coloring the icon.
-         */
+        // ✅ Determine color for group cards
         function getGroupColorClass(groupName) {
             const lowerCaseName = groupName.toLowerCase();
-            if (lowerCaseName.includes('marketing') || lowerCaseName.includes('business')) {
-                return 'green';
-            }
-            if (lowerCaseName.includes('calculus') || lowerCaseName.includes('math')) {
-                return 'teal';
-            }
-            return 'blue'; // Default color
+            if (lowerCaseName.includes("marketing") || lowerCaseName.includes("business"))
+                return "green";
+            if (lowerCaseName.includes("calculus") || lowerCaseName.includes("math"))
+                return "teal";
+            return "blue";
         }
 
-        /**
-         * Creates the HTML string for a single group list item.
-         * @param {Object} group - The group data object from the API.
-         * @returns {string} The HTML string for the group item.
-         */
+        // ✅ Create HTML for one group
         function createGroupItemHTML(group) {
             const colorClass = getGroupColorClass(group.name);
-            const memberText = group.memberCount === 1 ? 'member' : 'members';
+            const memberText = group.memberCount === 1 ? "member" : "members";
 
             return `
-                <div class="group-item">
-                    <div class="item-icon ${colorClass}">&#x1F465;</div>
-                    <div class="item-details">
-                        <h4>${group.name}</h4>
-                        <p>${group.memberCount} ${memberText}</p>
-                    </div>
-                    <a href="/group/${group.slug}" class="btn-open">Open</a>
-                </div>
-            `;
+    <div class="group-item">
+      <div class="item-icon ${colorClass}">&#x1F465;</div>
+      <div class="item-details">
+        <h4>${group.name}</h4>
+        <p>${memberText}: ${group.memberCount}</p>
+        ${group.subject ? `<p><strong>Subject:</strong> ${group.subject}</p>` : ""}
+        ${group.description ? `<p><strong>Description:</strong> ${group.description}</p>` : ""}
+      </div>
+      <a href="add-member.html?groupId=${group.slug}" class="btn-add-member">+ Add Member</a>
+      <a href="view-materials.html?groupId=${group.slug}" class="btn-view-materials">View Materials</a>
+      <button class="btn-upload" onclick="openUploadDialog('${group.slug}')">⬆ Upload Material</button>
+    </div>`;
         }
 
-        // --- Core Fetching Functions ---
 
-        /**
-         * Fetches the user's study groups from the server and renders them.
-         */
+        // ✅ Fetch user's groups and display them
         async function fetchAndRenderMyGroups() {
-            // 1. Retrieve the Cognito Token (assumed to be stored after login)
-            const cognitoToken = localStorage.getItem('idToken') || localStorage.getItem('accessToken');
-
-            if (!cognitoToken) {
-                groupsListContainer.innerHTML = '<p class="error-message">You are not logged in. Please log in to view your groups.</p>';
+            const userEmail = getCurrentUserEmail();
+            if (!userEmail) {
+                groupsListContainer.innerHTML =
+                    '<p class="error-message">Please log in to view your study groups.</p>';
                 return;
             }
 
-            // Clear current content and show loading message (if not already done)
-            groupsListContainer.innerHTML = '<p class="loading-message">Fetching your groups...</p>';
+            const token = localStorage.getItem("idToken");
+            groupsListContainer.innerHTML = "<p>Loading...</p>";
 
             try {
-                // 2. Fetch data, including the Authorization header with the JWT
-                const response = await fetch(USER_GROUPS_API_ENDPOINT, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${cognitoToken}`,
-                        'Content-Type': 'application/json'
+                const response = await fetch(
+                    `${USER_GROUPS_API_ENDPOINT}?userEmail=${encodeURIComponent(userEmail)}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
                     }
-                });
+                );
 
-                if (response.status === 401 || response.status === 403) {
-                    throw new Error("Session expired. Please log in again.");
-                }
-                if (!response.ok) {
-                    throw new Error(`Server error! Status: ${response.status}`);
-                }
-
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 const groups = await response.json();
 
-                if (groups.length === 0) {
-                    groupsListContainer.innerHTML = '<p class="loading-message">You have not joined any study groups yet. <a href="explore.html" style="color: #4a90e2; font-weight: 600;">Explore groups</a>.</p>';
+                if (!groups.length) {
+                    groupsListContainer.innerHTML =
+                        '<p>You have not joined any groups yet. <a href="explore.html">Explore groups</a>.</p>';
                     return;
                 }
 
-                // 3. Generate and insert the HTML
-                const allItemsHTML = groups.map(createGroupItemHTML).join('');
-                groupsListContainer.innerHTML = allItemsHTML;
-
-            } catch (error) {
-                console.error("Failed to fetch user groups:", error);
-                groupsListContainer.innerHTML = `<p class="error-message">Error loading groups: ${error.message}</p>`;
+                groupsListContainer.innerHTML = groups.map(createGroupItemHTML).join("");
+            } catch (err) {
+                console.error("Error:", err);
+                groupsListContainer.innerHTML = `<p>Error loading groups: ${err.message}</p>`;
             }
+        }
+        function openUploadDialog(groupId) {
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = ".pdf,.docx,.pptx,.txt";
+            fileInput.onchange = async () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("groupId", groupId);
+
+                try {
+                    const res = await fetch("http://localhost:3000/api/upload", {
+                        method: "POST",
+                        body: formData,
+                    });
+
+                    const data = await res.json();
+                    alert(data.message + "\nFile URL: " + data.fileUrl);
+                } catch (err) {
+                    console.error(err);
+                    alert("Upload failed");
+                }
+            };
+            fileInput.click();
         }
 
 
-
+        // ✅ Run on page load
+        window.addEventListener("DOMContentLoaded", () => {
+            const email = getCurrentUserEmail();
+            fetchAndRenderMyGroups();
+        });
     </script>
-   
+
+
 
     <style>
         .logout {
@@ -217,10 +232,6 @@
             align-items: center;
         }
 
-        .name {
-            font-weight: 700;
-            font-size: medium;
-        }
 
         .btn-create-group-big {
             text-decoration: none;
@@ -260,11 +271,6 @@
             font-weight: 700;
             color: #1a1a1a;
             margin: 0;
-        }
-
-        .welcome-header h1 span {
-            color: #4a90e2;
-            /* Highlight the user name */
         }
 
         .welcome-header .subtitle {

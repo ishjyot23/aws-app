@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Member - StudyNest</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f4f7fa;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #3b7ad2;
+        }
+        p.message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Add Member</h2>
+        <p>Enter the email of the person you want to add:</p>
+        <input type="email" id="memberEmail" placeholder="user@example.com" required>
+        <button id="addMemberBtn">Add Member</button>
+        <p class="message" id="statusMessage"></p>
+    </div>
+
+    <script>
+        // Get groupId from URL query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('groupId');
+
+        document.getElementById('addMemberBtn').addEventListener('click', async () => {
+            const email = document.getElementById('memberEmail').value.trim();
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = '';
+
+            if (!email) {
+                statusMessage.textContent = 'Please enter an email.';
+                statusMessage.style.color = 'red';
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/group/add-member', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ groupId, email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusMessage.textContent = 'Member added successfully! A notification email was sent.';
+                    statusMessage.style.color = 'green';
+                    document.getElementById('memberEmail').value = '';
+                } else {
+                    statusMessage.textContent = `Error: ${data.error}`;
+                    statusMessage.style.color = 'red';
+                }
+            } catch (err) {
+                statusMessage.textContent = `Network error: ${err.message}`;
+                statusMessage.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>

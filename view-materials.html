@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Materials</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Group Materials</h1>
+  <div id="materials-list">Loading...</div>
+
+  <script>
+    // ✅ Get groupId from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const groupId = urlParams.get("groupId");
+    const materialsList = document.getElementById("materials-list");
+
+    async function fetchMaterials() {
+      try {
+        const res = await fetch(`http://localhost:3000/api/view-materials?groupId=${encodeURIComponent(groupId)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (!data.length) {
+          materialsList.innerHTML = "<p>No materials uploaded yet.</p>";
+          return;
+        }
+
+        // Render each file as a clickable link
+        materialsList.innerHTML = data.map(file => `
+          <div class="material-item">
+            <a href="${file.url}" target="_blank">${file.name}</a>
+          </div>
+        `).join("");
+      } catch (err) {
+        console.error(err);
+        materialsList.innerHTML = `<p>Error fetching materials: ${err.message}</p>`;
+      }
+    }
+
+    fetchMaterials();
+  </script>
+</body>
+</html>

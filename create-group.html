@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,8 @@
         /* Basic Reset and Body Styling */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f7fa; /* Light blue-gray background */
+            background-color: #f4f7fa;
+            /* Light blue-gray background */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -51,7 +53,8 @@
 
         .logo-icon {
             font-size: 36px;
-            color: #4a90e2; /* Blue color for the icon */
+            color: #4a90e2;
+            /* Blue color for the icon */
         }
 
         .logo-text {
@@ -95,10 +98,10 @@
             color: #aaa;
         }
 
-        input[type="text"],
-        input[type="textarea"] {
+        input[type="text"] {
             width: 100%;
-            padding: 12px 12px 12px 40px; /* Added padding-left for icon */
+            padding: 12px 12px 12px 12px;
+            /* Adjusted padding as icons were removed */
             border: 1px solid #ddd;
             border-radius: 8px;
             box-sizing: border-box;
@@ -106,17 +109,17 @@
             transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus,
-        input[type="textarea"]:focus {
+        input[type="text"]:focus {
             border-color: #4a90e2;
             outline: none;
         }
 
-        /* Sign In Button */
-        .btn-create{
+        /* Create Button */
+        .btn-create {
             width: 100%;
             padding: 14px;
-            background-color: #4a90e2; /* Primary blue color */
+            background-color: #4a90e2;
+            /* Primary blue color */
             color: white;
             border: none;
             border-radius: 8px;
@@ -128,12 +131,13 @@
         }
 
         .btn-create:hover {
-            background-color: #3a7bd5; /* Darker blue on hover */
+            background-color: #3a7bd5;
+            /* Darker blue on hover */
             box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
         }
-
     </style>
 </head>
+
 <body>
 
     <div class="login-container">
@@ -150,146 +154,172 @@
 
         <h3 class="subtitle">Create a new group</h3>
 
-        <form action="dashboard.html" method="GET">
+        <form id="createGroupForm">
             <div class="form-group">
-                <label for="grp_name">Group Name</label>
+                <label for="name">Group Name</label>
                 <div class="input-wrapper">
-                    <input type="text" id="name" name="name" placeholder="Enter group name" required>
+                    <!-- Removed icon span -->
+                    <input type="text" id="name" placeholder="Enter group name" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="subject">Subject</label>
                 <div class="input-wrapper">
-                    <input type="text" id="subject" name="subject" placeholder="Enter your password" required>
+                    <!-- Removed icon span -->
+                    <input type="text" id="subject" placeholder="Enter subject" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="desc">Description</label>
                 <div class="input-wrapper">
-                    <input type="textarea" id="desc" name="desc" placeholder="Enter your group's description" required>
+                    <!-- Removed icon span -->
+                    <input type="text" id="desc" placeholder="Enter your group's description">
                 </div>
             </div>
 
             <button type="submit" class="btn-create">Create</button>
         </form>
-
     </div>
 
-    <script>
-        const form = document.getElementById('createGroupForm');
-        const statusMessage = document.getElementById('status-message');
-        const createButton = document.querySelector('.btn-create');
-        const API_ENDPOINT = '/createGroup'; // Use the endpoint provided by the user
+    <!-- Reintroduced status message for better user feedback -->
+    <div id="status-message" style="margin-top: 20px; padding: 10px; border-radius: 8px; text-align: center; font-weight: bold; display: none; color: white; width: 100%; max-width: 400px;"></div>
 
-        /**
-         * Utility to display status messages to the user.
-         * @param {string} message - The text to display.
-         * @param {('success'|'error'|'loading')} type - The style/class to apply.
-         */
-        function displayStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = 'status-message ' + type;
-            statusMessage.style.display = 'block';
-            
-            // Re-enable button after final status (success/error)
-            if (type !== 'loading') {
-                createButton.disabled = false;
-                createButton.textContent = 'Create Group';
-            } else {
-                createButton.disabled = true;
-                createButton.textContent = 'Creating...';
+    <script>
+        // --- JWT Decode Helper Function ---
+        function decodeJwtPayload(token) {
+            try {
+                // Get the payload part (second segment)
+                const base64Url = token.split('.')[1];
+                // Replace characters unique to base64url encoding
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                // Decode and parse the JSON
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                console.error("Failed to decode JWT payload:", e);
+                return null;
             }
         }
 
-        // --- Exponential Backoff Retry Logic ---
-        async function fetchWithRetry(url, options, retries = 3) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (response.status === 429) { // Too Many Requests
-                        throw new Error("Rate limit exceeded. Retrying...");
-                    }
-                    if (!response.ok) {
-                        // Throw error if response status is not successful (4xx or 5xx)
-                        const errorBody = await response.json().catch(() => ({}));
-                        throw new Error(errorBody.error || `HTTP error! Status: ${response.status}`);
-                    }
-                    return response;
-                } catch (error) {
-                    if (i < retries - 1) {
-                        // Wait using exponential backoff: 1s, 2s, 4s...
-                        const delay = Math.pow(2, i) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        // console.log(`Retry attempt ${i + 1} after ${delay}ms...`);
-                    } else {
-                        throw error; // Throw final error
-                    }
+        // Function to display status messages (error or success)
+        function displayStatus(message, isError = true) {
+            const statusDiv = document.getElementById('status-message');
+            if (statusDiv) {
+                statusDiv.textContent = message;
+                statusDiv.style.display = 'block';
+                if (isError) {
+                    statusDiv.style.backgroundColor = '#d9534f'; // Red for error
+                } else {
+                    statusDiv.style.backgroundColor = '#5cb85c'; // Green for success
                 }
             }
         }
 
-        // --- Main Submission Handler ---
-        form.addEventListener('submit', async function(event) {
+        // --- Main Logic ---
+        const form = document.getElementById('createGroupForm');
+        const API_ENDPOINT = 'http://localhost:3000/createGroup';
+
+        form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
-            // 1. Get Authentication Token
-            // NOTE: In a real app, this token would be managed by your Firebase/Cognito setup.
-            const cognitoToken = localStorage.getItem('idToken') || localStorage.getItem('accessToken'); 
-            
-            if (!cognitoToken) {
-                displayStatus('Authentication required. Please log in first.', 'error');
+            // 1. Retrieve the token saved during login
+            const token = localStorage.getItem('idToken');
+            if (!token) {
+                const message = "Authentication Error: No token found. Please sign in.";
+                console.error(message);
+                displayStatus(message, true);
+                
+                setTimeout(() => {
+                    window.location.href = 'signin.html';
+                }, 2000); 
                 return;
             }
 
-            // 2. Collect Form Data
+            // 2. Decode the token to get the user's email (or 'username')
+            const payload = decodeJwtPayload(token);
+            // Check for 'email' or 'username' claim
+            const userEmail = payload ? (payload.email || payload.username) : null;
+
+            // 3. Robust validation of the extracted email
+            if (!userEmail || typeof userEmail !== 'string' || userEmail.trim() === "") {
+                const message = "Authentication failed. User email could not be extracted from the login token. Please sign in again.";
+                console.error("Token Error:", message);
+                displayStatus(message, true);
+                
+                setTimeout(() => {
+                    window.location.href = 'signin.html';
+                }, 2000); 
+                return;
+            }
+
             const groupName = document.getElementById('name').value;
-            const subject = document.getElementById('subject').value;
+            const Subject = document.getElementById('subject').value;
             const description = document.getElementById('desc').value;
             
-            // Map form data to the server's expected payload
-            const payload = {
-                // The server snippet expects GroupID. We'll use the group name for this.
-                GroupID: groupName, 
+            // Generate a unique Group ID client-side
+            // FIX: Changed variable name to 'groupId' (lowercase 'd') to match server expectation
+            const groupId = `${groupName.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`;
+
+            const requestPayload = {
+                // FIX: Changed key name to 'GroupId' (lowercase 'd') to match server destructuring
+                GroupId: groupId, 
                 GroupName: groupName,
-                Subject: subject,
-                Description: description
-                // Additional fields (like creator/user details) are handled on the server
+                Subject: Subject,
+                Description: description,
+                email: userEmail.trim() // Ensure no leading/trailing spaces
             };
 
-            // 3. Display Loading State
-            displayStatus('Creating group...', 'loading');
-            
+            // Simple button feedback 
+            const createButton = event.target.querySelector('.btn-create');
+            createButton.textContent = 'Creating...';
+            createButton.disabled = true;
+
+
             try {
-                // 4. Send API Request
-                const response = await fetchWithRetry(API_ENDPOINT, {
+                const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${cognitoToken}` // Pass the JWT token
-                    },
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestPayload)
                 });
-                
-                // Response is guaranteed to be OK by fetchWithRetry if it reaches here
+
                 const result = await response.json();
+
+                if (!response.ok) {
+                    const errorMsg = result.error || 'Unknown server error.';
+                    console.error("Group Creation Failed:", errorMsg);
+                    console.error("Server Response Details:", result);
+                    displayStatus(`Creation failed: ${errorMsg}`, true);
+                    throw new Error(errorMsg);
+                }
                 
-                // 5. Handle Success
-                displayStatus(`Success! Group "${groupName}" created. Redirecting...`, 'success');
+                // FIX: Use the corrected case in logging
+                console.log(`Group created successfully. GroupId: ${result.group.GroupId}`);
+                displayStatus("Group created successfully!", false);
                 
-                // Redirect to the dashboard after a short delay
+                // On success, redirect after a short delay
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
-                }, 1500);
+                }, 500);
 
-            } catch (error) {
-                // 6. Handle Error
-                console.error('Group Creation Failed:', error);
-                displayStatus(`Failed to create group. ${error.message || 'Please check the console for details.'}`, 'error');
+            } catch (err) {
+                console.error("Network or API Error:", err.message);
+                
+                // Revert button state on failure
+                createButton.textContent = 'Create';
+                createButton.disabled = false;
+                
+                // Show network error
+                if (!document.getElementById('status-message').textContent.includes("Creation failed")) {
+                    displayStatus(`Network Error: ${err.message}`, true);
+                }
             }
         });
     </script>
-
 </body>
+
 </html>
