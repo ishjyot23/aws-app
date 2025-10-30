@@ -18,7 +18,7 @@
 
     async function fetchMaterials() {
       try {
-        const res = await fetch(`http://localhost:3000/api/view-materials?groupId=${encodeURIComponent(groupId)}`);
+        const res = await fetch(`https://aws-app-3pj2.onrender.com/api/view-materials?groupId=${encodeURIComponent(groupId)}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 

@@ -107,7 +107,7 @@
 
     <!-- ================== JAVASCRIPT ================== -->
     <script>
-        const USER_GROUPS_API_ENDPOINT = "http://localhost:3000/api/user/groups";
+        const USER_GROUPS_API_ENDPOINT = "https://aws-app-3pj2.onrender.com/api/user/groups";
         const groupsListContainer = document.getElementById("my-groups-list");
 
         // ✅ Get user email from localStorage (set during login)
@@ -198,7 +198,7 @@
                 formData.append("groupId", groupId);
 
                 try {
-                    const res = await fetch("http://localhost:3000/api/upload", {
+                    const res = await fetch("https://aws-app-3pj2.onrender.com/api/upload", {
                         method: "POST",
                         body: formData,
                     });

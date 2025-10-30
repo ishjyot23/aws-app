@@ -361,7 +361,7 @@
     <script>
         // Define the base URL for your API endpoint
         // Assuming your server.js exposes an endpoint like /api/groups
-        const API_ENDPOINT = 'http://localhost:3000/groups';
+        const API_ENDPOINT = 'https://aws-app-3pj2.onrender.com/groups';
 
         const groupsContainer = document.getElementById('groups-container');
 
@@ -409,7 +409,7 @@
             btn.textContent = 'Join Request Sent';
 
             try {
-                const res = await fetch('http://localhost:3000/api/join', {
+                const res = await fetch('https://aws-app-3pj2.onrender.com/api/join', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ groupId, userEmail })
