@@ -8,6 +8,12 @@ import cors from "cors";
 
 
 dotenv.config();
+console.log("🔹 Loaded AWS Credentials:");
+console.log("Access Key:", process.env.AWS_ACCESS_KEY_ID ? "✅ Present" : "❌ Missing");
+console.log("Secret Key:", process.env.AWS_SECRET_ACCESS_KEY ? "✅ Present" : "❌ Missing");
+console.log("Session Token:", process.env.AWS_SESSION_TOKEN ? "✅ Present" : "❌ Missing");
+console.log("Region:", process.env.AWS_REGION);
+
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
